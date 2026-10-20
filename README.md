@@ -293,4 +293,4 @@
 
 ## Схема бази даних
 
-![Схема бази даних](<./Untitled Diagram.png>)
+![Схема бази даних](<./Untitled Diagram.drawio.png>)
