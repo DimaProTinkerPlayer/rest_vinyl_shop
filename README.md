@@ -25,10 +25,15 @@
   * `search` (string) — пошук за назвою альбому.
   * `artist_id` (integer) — фільтрація за ID виконавця.
   * `genre_id` (integer) — фільтрація за ID жанру.
-  * `sort` (string) — варіанти сортування (`price_asc`, `price_desc`, `year_desc`).
+  * `sort` (string) — поле сортування. Доступні значення:
+    * `price` — за зростанням ціни (asc)
+    * `-price` — за спаданням ціни (desc)
+    * `year` — за роком випуску (asc)
+    * `-year` — за роком випуску від найновіших (desc)
   * `page` (integer), `limit` (integer) — параметри пагінації.
 - **Response Status:** `200 OK`
 - **Response Body:**
+
 ```json
 [
   {
@@ -212,25 +217,49 @@
 
 ---
 
+### Фрагмент 2. Оновлена секція `4. Замовлення (/orders)`
+
+```markdown
 ### 4. Замовлення (`/orders`)
 
 ### `POST /orders`
 - **Response Status:** `201 Created`
 - **Request Body:**
+
 ```json
 {
-  "record_id": 0
+  "items": [
+    {
+      "record_id": 0,
+      "quantity": 0
+    },
+    {
+      "record_id": 0,
+      "quantity": 0
+    }
+  ]
 }
-```
 - **Response Body:**
 ```json
 {
   "order_id": 0,
-  "record_id": 0,
-  "album": "",
-  "price": 0.0,
-  "status": "completed",
-  "created_at": ""
+  "status": "",
+  "total_price": 0.0,
+  "created_at": "",
+  "items": [
+    {
+      "record_id": 0,
+      "album": "",
+      "quantity": 0,
+      "price_per_item": 0.0
+    },
+    {
+      "record_id": 0,
+      "album": "",
+      "quantity": 0,
+      "price_per_item": 0.0
+    }
+  ]
 }
 ```
 
@@ -241,11 +270,23 @@
 [
   {
     "order_id": 0,
-    "record_id": 0,
-    "album": "",
-    "price": 0.0,
-    "status": "completed",
-    "created_at": ""
+    "status": "",
+    "total_price": 0.0,
+    "created_at": "",
+    "items": [
+      {
+        "record_id": 0,
+        "album": "",
+        "quantity": 0,
+        "price_per_item": 0.0
+      },
+      {
+        "record_id": 0,
+        "album": "",
+        "quantity": 0,
+        "price_per_item": 0.0
+      }
+    ]
   }
 ]
 ```
