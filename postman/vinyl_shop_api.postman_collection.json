@@ -1,0 +1,350 @@
+{
+  "info": {
+    "_postman_id": "b8f9c2d1-4e5a-4b3c-9d8e-1f2a3b4c5d6e",
+    "name": "REST Vinyl Shop API",
+    "description": "Колекція запитів для тестування CRUD операцій та обробки помилок інтернет-магазину вінілових платівок.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Genres",
+      "item": [
+        {
+          "name": "Get All Genres (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/genres",
+              "host": ["{{base_url}}"],
+              "path": ["genres"]
+            }
+          }
+        },
+        {
+          "name": "Create Genre (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Synthwave\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/genres",
+              "host": ["{{base_url}}"],
+              "path": ["genres"]
+            }
+          }
+        },
+        {
+          "name": "Get Genre by ID (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/genres/1",
+              "host": ["{{base_url}}"],
+              "path": ["genres", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Genre (200 OK)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Progressive Rock\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/genres/1",
+              "host": ["{{base_url}}"],
+              "path": ["genres", "1"]
+            }
+          }
+        },
+        {
+          "name": "[ERROR] Delete Genre with Records (409 Conflict)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/genres/1",
+              "host": ["{{base_url}}"],
+              "path": ["genres", "1"]
+            }
+          }
+        },
+        {
+          "name": "[ERROR] Get Non-Existent Genre (404 Not Found)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/genres/9999",
+              "host": ["{{base_url}}"],
+              "path": ["genres", "9999"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Artists",
+      "item": [
+        {
+          "name": "Get All Artists (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/artists",
+              "host": ["{{base_url}}"],
+              "path": ["artists"]
+            }
+          }
+        },
+        {
+          "name": "Create Artist (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Daft Punk\",\n  \"bio\": \"French electronic music duo.\",\n  \"image_url\": \"https://example.com/daftpunk.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/artists",
+              "host": ["{{base_url}}"],
+              "path": ["artists"]
+            }
+          }
+        },
+        {
+          "name": "Get Artist by ID (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/artists/1",
+              "host": ["{{base_url}}"],
+              "path": ["artists", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Artist (200 OK)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pink Floyd\",\n  \"bio\": \"Updated biography for legendary British rock band.\",\n  \"image_url\": \"https://example.com/pinkfloyd.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/artists/1",
+              "host": ["{{base_url}}"],
+              "path": ["artists", "1"]
+            }
+          }
+        },
+        {
+          "name": "[ERROR] Delete Artist with Records (409 Conflict)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/artists/1",
+              "host": ["{{base_url}}"],
+              "path": ["artists", "1"]
+            }
+          }
+        },
+        {
+          "name": "[ERROR] Create Artist Invalid Data (400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/artists",
+              "host": ["{{base_url}}"],
+              "path": ["artists"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Records",
+      "item": [
+        {
+          "name": "Get All Records with Filters & Sort (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/records?search=Dark&sort=-price&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["records"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Dark"
+                },
+                {
+                  "key": "sort",
+                  "value": "-price"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Record (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"album\": \"Wish You Were Here\",\n  \"artist_id\": 1,\n  \"genre_id\": 1,\n  \"price\": 40.00,\n  \"year\": 1975,\n  \"cover_image\": \"https://example.com/wywh.jpg\",\n  \"stock_quantity\": 7,\n  \"tracklist\": [\n    \"Shine On You Crazy Diamond\",\n    \"Welcome to the Machine\",\n    \"Wish You Were Here\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/records",
+              "host": ["{{base_url}}"],
+              "path": ["records"]
+            }
+          }
+        },
+        {
+          "name": "Get Record by ID (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/records/1",
+              "host": ["{{base_url}}"],
+              "path": ["records", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Record (200 OK)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"album\": \"The Dark Side of the Moon (Remastered)\",\n  \"artist_id\": 1,\n  \"genre_id\": 1,\n  \"price\": 42.50,\n  \"year\": 1973,\n  \"cover_image\": \"https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png\",\n  \"stock_quantity\": 12,\n  \"tracklist\": [\n    \"Speak to Me\",\n    \"Breathe\",\n    \"Time\",\n    \"Money\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/records/1",
+              "host": ["{{base_url}}"],
+              "path": ["records", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Record (204 No Content)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/records/2",
+              "host": ["{{base_url}}"],
+              "path": ["records", "2"]
+            }
+          }
+        },
+        {
+          "name": "[ERROR] Create Record Invalid Year/Price (400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"album\": \"Invalid Album\",\n  \"artist_id\": 999,\n  \"genre_id\": 1,\n  \"price\": -10.00,\n  \"year\": 1800\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/records",
+              "host": ["{{base_url}}"],
+              "path": ["records"]
+            }
+          }
+        },
+        {
+          "name": "[ERROR] Get Non-Existent Record (404 Not Found)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/records/9999",
+              "host": ["{{base_url}}"],
+              "path": ["records", "9999"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
