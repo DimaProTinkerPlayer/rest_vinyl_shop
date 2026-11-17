@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "b8f9c2d1-4e5a-4b3c-9d8e-1f2a3b4c5d6e",
     "name": "REST Vinyl Shop API",
-    "description": "Колекція запитів для тестування CRUD операцій та обробки помилок інтернет-магазину вінілових платівок.",
+    "description": "Колекція запитів для тестування CRUD операцій, JWT-автентифікації та прав доступу інтернет-магазину вінілових платівок.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -10,9 +10,156 @@
       "key": "base_url",
       "value": "http://127.0.0.1:8000",
       "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
+    {
+      "name": "0. Auth",
+      "item": [
+        {
+          "name": "Register User (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"vinyl_lover\",\n  \"first_name\": \"Taras\",\n  \"last_name\": \"Shevchenko\",\n  \"email\": \"taras@example.com\",\n  \"password\": \"StrongPass123!\",\n  \"password_confirmation\": \"StrongPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "[ERROR] Register Invalid Data (400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"\",\n  \"email\": \"not-an-email\",\n  \"password\": \"123\",\n  \"password_confirmation\": \"456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login - Obtain JWT Tokens (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.access) {",
+                  "    pm.collectionVariables.set(\"access_token\", res.access);",
+                  "}",
+                  "if (res.refresh) {",
+                  "    pm.collectionVariables.set(\"refresh_token\", res.refresh);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"vinyl_lover\",\n  \"password\": \"StrongPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User / Me (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Access Token (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.access) {",
+                  "    pm.collectionVariables.set(\"access_token\", res.access);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        }
+      ]
+    },
     {
       "name": "1. Genres",
       "item": [
@@ -29,18 +176,47 @@
           }
         },
         {
-          "name": "Create Genre (201 Created)",
+          "name": "Create Genre - Admin Only (201 Created)",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
               }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Synthwave\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/genres",
+              "host": ["{{base_url}}"],
+              "path": ["genres"]
+            }
+          }
+        },
+        {
+          "name": "[ERROR] Create Genre as Regular User (403 Forbidden)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Forbidden Genre\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/genres",
@@ -62,13 +238,17 @@
           }
         },
         {
-          "name": "Update Genre (200 OK)",
+          "name": "Update Genre - Admin Only (200 OK)",
           "request": {
             "method": "PUT",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
               }
             ],
             "body": {
@@ -86,7 +266,12 @@
           "name": "[ERROR] Delete Genre with Records (409 Conflict)",
           "request": {
             "method": "DELETE",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/genres/1",
               "host": ["{{base_url}}"],
@@ -124,13 +309,17 @@
           }
         },
         {
-          "name": "Create Artist (201 Created)",
+          "name": "Create Artist - Admin Only (201 Created)",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
               }
             ],
             "body": {
@@ -157,13 +346,17 @@
           }
         },
         {
-          "name": "Update Artist (200 OK)",
+          "name": "Update Artist - Admin Only (200 OK)",
           "request": {
             "method": "PUT",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
               }
             ],
             "body": {
@@ -181,7 +374,12 @@
           "name": "[ERROR] Delete Artist with Records (409 Conflict)",
           "request": {
             "method": "DELETE",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/artists/1",
               "host": ["{{base_url}}"],
@@ -197,6 +395,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
               }
             ],
             "body": {
@@ -246,7 +448,32 @@
           }
         },
         {
-          "name": "Create Record (201 Created)",
+          "name": "Create Record - Auth Required (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"album\": \"Wish You Were Here\",\n  \"artist_id\": 1,\n  \"genre_id\": 1,\n  \"price\": 40.00,\n  \"year\": 1975,\n  \"cover_image\": \"https://example.com/wywh.jpg\",\n  \"stock_quantity\": 7,\n  \"tracklist\": [\n    \"Shine On You Crazy Diamond\",\n    \"Welcome to the Machine\",\n    \"Wish You Were Here\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/records",
+              "host": ["{{base_url}}"],
+              "path": ["records"]
+            }
+          }
+        },
+        {
+          "name": "[ERROR] Create Record Without Token (401 Unauthorized)",
           "request": {
             "method": "POST",
             "header": [
@@ -257,7 +484,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"album\": \"Wish You Were Here\",\n  \"artist_id\": 1,\n  \"genre_id\": 1,\n  \"price\": 40.00,\n  \"year\": 1975,\n  \"cover_image\": \"https://example.com/wywh.jpg\",\n  \"stock_quantity\": 7,\n  \"tracklist\": [\n    \"Shine On You Crazy Diamond\",\n    \"Welcome to the Machine\",\n    \"Wish You Were Here\"\n  ]\n}"
+              "raw": "{\n  \"album\": \"Unauthorized Album\",\n  \"artist_id\": 1,\n  \"genre_id\": 1,\n  \"price\": 30.00,\n  \"year\": 1980\n}"
             },
             "url": {
               "raw": "{{base_url}}/records",
@@ -279,13 +506,17 @@
           }
         },
         {
-          "name": "Update Record (200 OK)",
+          "name": "Update Record - Auth Required (200 OK)",
           "request": {
             "method": "PUT",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
               }
             ],
             "body": {
@@ -300,10 +531,15 @@
           }
         },
         {
-          "name": "Delete Record (204 No Content)",
+          "name": "Delete Record - Auth Required (204 No Content)",
           "request": {
             "method": "DELETE",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/records/2",
               "host": ["{{base_url}}"],
@@ -319,6 +555,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
               }
             ],
             "body": {

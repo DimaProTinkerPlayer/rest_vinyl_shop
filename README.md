@@ -508,3 +508,192 @@
 ## Схема бази даних
 
 ![Схема бази даних](docs/db_schema.png)
+
+## Authentication & Authorization (JWT)
+
+Проєкт використовує **JWT (JSON Web Token)** автентифікацію на базі `djangorestframework-simplejwt`.
+
+### Передача токена (Headers)
+
+Для доступу до захищених ендпоінтів необхідно передавати `access` токен у HTTP-заголовку:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+- Час життя `access` токена: **15 хвилин**
+- Час життя `refresh` токена: **7 днів**
+
+---
+
+## Ендпоінти автентифікації
+
+### 1. Реєстрація користувача
+
+- **URL:** `/auth/register`
+- **Метод:** `POST`
+- **Доступ:** Public
+- **Headers:** `Content-Type: application/json`
+
+**Request Body:**
+
+```json
+{
+  "username": "vinyl_lover",
+  "first_name": "Taras",
+  "last_name": "Shevchenko",
+  "email": "taras@example.com",
+  "password": "StrongPass123!",
+  "password_confirmation": "StrongPass123!"
+}
+```
+
+**Обов'язкові поля:**
+
+- `username` — до 150 символів, унікальний
+- `email` — коректний формат, до 254 символів, унікальний
+- `password` — 8–128 символів, перевірка складності
+- `password_confirmation` — має збігатися з `password`
+
+**Необов'язкові поля:** `first_name`, `last_name` (до 150 символів).
+
+**Response (201 Created):**
+
+```json
+{
+  "id": 2,
+  "username": "vinyl_lover",
+  "first_name": "Taras",
+  "last_name": "Shevchenko",
+  "email": "taras@example.com",
+  "is_staff": false,
+  "role": "user"
+}
+```
+
+**Response (400 Bad Request — помилка валідації):**
+
+```json
+{
+  "error": {
+    "email": ["Введіть коректну email-адресу."],
+    "password_confirmation": ["Паролі не збігаються."]
+  }
+}
+```
+
+---
+
+### 2. Логін (отримання JWT токенів)
+
+- **URL:** `/auth/login`
+- **Метод:** `POST`
+- **Доступ:** Public
+- **Headers:** `Content-Type: application/json`
+
+**Request Body:**
+
+```json
+{
+  "username": "vinyl_lover",
+  "password": "StrongPass123!"
+}
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Response (401 Unauthorized — невірний логін або пароль):**
+
+```json
+{
+  "detail": "No active account found with the given credentials"
+}
+```
+
+---
+
+### 3. Оновлення Access токена
+
+- **URL:** `/auth/refresh`
+- **Метод:** `POST`
+- **Доступ:** Public
+- **Headers:** `Content-Type: application/json`
+
+**Request Body:**
+
+```json
+{
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Response (401 Unauthorized — невалідний або прострочений refresh токен):**
+
+```json
+{
+  "detail": "Token is invalid or expired",
+  "code": "token_not_valid"
+}
+```
+
+---
+
+### 4. Профіль поточного користувача
+
+- **URL:** `/auth/me`
+- **Метод:** `GET`
+- **Доступ:** Authenticated
+- **Headers:** `Authorization: Bearer <access_token>`
+
+**Response (200 OK):**
+
+```json
+{
+  "id": 2,
+  "username": "vinyl_lover",
+  "first_name": "Taras",
+  "last_name": "Shevchenko",
+  "email": "taras@example.com",
+  "is_staff": false,
+  "role": "user"
+}
+```
+
+---
+
+## Коди помилок доступу
+
+### 401 Unauthorized
+
+Запит до захищеного ендпоінта без заголовка `Authorization` або з простроченим/невалідним токеном:
+
+```json
+{
+  "detail": "Authentication credentials were not provided."
+}
+```
+
+### 403 Forbidden
+
+Спроба звичайного користувача (`is_staff: false`) виконати дію, доступну лише адміністратору (наприклад, `POST /artists` або `DELETE /genres/1`):
+
+```json
+{
+  "detail": "Доступ заборонено. Ця дія дозволена лише адміністраторам."
+}
+```
