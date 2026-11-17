@@ -16,41 +16,81 @@
 
 ---
 
-## Як запустити проєкт
+## Локальне налаштування та запуск
 
-1. **Клонуйте репозиторій та перейдіть у папку проєкту:**
+### 1. Клонування репозиторію
 
-   ```bash
-   git clone <посилання_на_репозиторій>
-   cd rest_vinyl_shop
-   ```
+```bash
+git clone <посилання_на_репозиторій>
+cd rest_vinyl_shop
+```
 
-2. **Створіть та активуйте віртуальне середовище:**
+### 2. Встановлення залежностей
 
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
+Створіть та активуйте віртуальне середовище, після чого встановіть усі пакети (включно з інструментами тестування та OpenAPI):
 
-3. **Встановіть залежності:**
+```bash
+python3 -m venv venv
+source venv/bin/activate  # для Linux/macOS
+pip install -r requirements.txt
+```
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+### 3. Налаштування змінних середовища (`.env`)
 
-4. **Виконайте міграції:**
+Скопіюйте шаблон `.env.example` у файл `.env` та заповніть значення:
 
-   ```bash
-   python manage.py migrate
-   ```
+```bash
+cp .env.example .env
+```
 
-5. **Запустіть сервер:**
+Перелік змінних середовища:
 
-   ```bash
-   python manage.py runserver
-   ```
+- `SECRET_KEY` — секретний криптографічний ключ Django (обов'язково змініть на власний у production).
+- `DEBUG` — режим налагодження (`True` для локальної розробки, `False` для production).
+- `ALLOWED_HOSTS` — список дозволених хостів через кому (наприклад, `127.0.0.1,localhost`).
+
+### 4. Міграції та запуск сервера
+
+```bash
+python manage.py migrate
+python manage.py runserver
+```
 
 Бекенд буде доступний за адресою: [http://127.0.0.1:8000](http://127.0.0.1:8000).
+
+---
+
+## Документація API (OpenAPI / Swagger)
+
+Автоматично згенерована документація доступна після запуску сервера за такими адресами:
+
+- **Swagger UI** (інтерактивна документація): [http://127.0.0.1:8000/api/docs/](http://127.0.0.1:8000/api/docs/)
+- **ReDoc**: [http://127.0.0.1:8000/api/redoc/](http://127.0.0.1:8000/api/redoc/)
+- **OpenAPI-схема** (YAML/JSON): `GET http://127.0.0.1:8000/api/schema/`
+
+Файл схеми також можна згенерувати локально командою:
+
+```bash
+python manage.py spectacular --file schema.yml
+```
+
+---
+
+## Тестування та покриття коду
+
+Для автоматизованого тестування використовуються `pytest`, `pytest-django` та фікстури (`conftest.py`).
+
+Запустити всі тести:
+
+```bash
+pytest
+```
+
+Запустити тести із заміром покриття (`coverage`):
+
+```bash
+pytest --cov=shop --cov=users --cov-report=term-missing
+```
 
 ---
 
