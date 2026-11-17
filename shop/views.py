@@ -2,18 +2,21 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Artist, Genre, Record
-from .serializers import (
+from shop.permissions import IsAdminOrReadOnly, IsAuthenticatedOrReadOnlyCustom
+
+from shop.models import Artist, Genre, Record
+from shop.serializers import (
     ArtistSerializer,
     GenreSerializer,
     RecordDetailSerializer,
     RecordListSerializer,
 )
 
-
 # ARTISTS
 
+
 class ArtistListCreateAPIView(APIView):
+    permission_classes = [IsAdminOrReadOnly]
     def get(self, request):
         artists = Artist.objects.all()
         serializer = ArtistSerializer(artists, many=True)
@@ -24,10 +27,13 @@ class ArtistListCreateAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class ArtistDetailAPIView(APIView):
+    permission_classes = [IsAdminOrReadOnly]
     def get_object(self, pk):
         try:
             return Artist.objects.get(pk=pk)
@@ -55,7 +61,9 @@ class ArtistDetailAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     def delete(self, request, pk):
         artist = self.get_object(pk)
@@ -80,9 +88,12 @@ class ArtistDetailAPIView(APIView):
         artist.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 # GENRES
 
+
 class GenreListCreateAPIView(APIView):
+    permission_classes = [IsAdminOrReadOnly]
     def get(self, request):
         genres = Genre.objects.all()
         serializer = GenreSerializer(genres, many=True)
@@ -93,10 +104,13 @@ class GenreListCreateAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class GenreDetailAPIView(APIView):
+    permission_classes = [IsAdminOrReadOnly]
     def get_object(self, pk):
         try:
             return Genre.objects.get(pk=pk)
@@ -124,7 +138,9 @@ class GenreDetailAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     def delete(self, request, pk):
         genre = self.get_object(pk)
@@ -149,9 +165,12 @@ class GenreDetailAPIView(APIView):
         genre.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 # RECORDS
 
+
 class RecordListCreateAPIView(APIView):
+    permission_classes = [IsAdminOrReadOnly]
     def get(self, request):
         queryset = Record.objects.select_related("artist", "genre").all()
 
@@ -203,10 +222,13 @@ class RecordListCreateAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class RecordDetailAPIView(APIView):
+    permission_classes = [IsAdminOrReadOnly]
     def get_object(self, pk):
         try:
             return Record.objects.select_related("artist", "genre").get(pk=pk)
@@ -234,7 +256,9 @@ class RecordDetailAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     def delete(self, request, pk):
         record = self.get_object(pk)
